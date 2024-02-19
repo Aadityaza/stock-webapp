@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Stock Data Results</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <style>
+        .container {
+            margin-top: 20px;
+        }
+        .section {
+            border: 1px solid #ddd;
+            background-color: #f9f9f9;
+            margin-bottom: 20px;
+            padding: 15px;
+            border-radius: 5px;
+        }
+        #chart {
+            border: 2px solid #333;
+            padding: 10px;
+            border-radius: 2px;
+            margin: auto;
+            text-align: center;
+        }
+        .highlight {
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+
+        <h2 class="text-center">Stock Data Results</h2>
+
+        {% if error_message %}
+            <div class="alert alert-danger" role="alert">
+                {{ error_message }}
+            </div>
+        {% else %}
+            <div id="chart">
+                {{ chart|safe }}
+                <h4 class="text-center">{{ stock_details.fmp_profile.get('companyName', 'Stock') }} Chart</h4>
+            </div>
+
+        <!-- Stock Information Section -->
+        <div id="stockInfo" class="section stock-info" style="display: block">
+
+            <h3 class="section-heading">Stock Information</h3>
+            <table class="table financial-table">
+                <tbody>
+                    <tr>
+                            <th>Price</th>
+                            <td style="color: blue;font-weight: bold;">${{ stock_details.yf_info.get('currentPrice', 'N/A') }}</td>
+                        </tr>
+
+                    <tr>
+                        <th>Market Cap</th>
+                        <td>{{ stock_details.yf_info.get('marketCap', 'N/A') | int | default('N/A') | round(-6) }}</td>
+                    </tr>
+                    <tr>
+                        <th>P/E Ratio</th>
+                        <td>{{ stock_details.yf_info.get('trailingPE', 'N/A') | float | default('N/A') | round(2) }}</td>
+                    </tr>
+                    <tr>
+                        <th>Dividend Yield</th>
+                        <td>{{ stock_details.yf_info.get('dividendYield', 'N/A') | float | default('N/A') | round(4) }}</td>
+                    </tr>
+                    <tr>
+                        <th>Previous Close</th>
+                        <td>{{ stock_details.yf_info.get('previousClose', 'N/A') }}</td>
+                    </tr>
+                    <tr>
+                        <th>52 Week High</th>
+                        <td>{{ stock_details.yf_info.get('fiftyTwoWeekHigh', 'N/A') }}</td>
+                    </tr>
+                    <tr>
+                        <th>52 Week Low</th>
+                        <td>{{ stock_details.yf_info.get('fiftyTwoWeekLow', 'N/A') }}</td>
+                    </tr>
+                    <tr>
+                        <th>Average Volume</th>
+                        <td>{{ stock_details.yf_info.get('averageVolume', 'N/A') }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <!-- Financial Figures Section -->
+        <div id="financialFigures" class="section financial-figures" >
+                <h3 class="section-heading">Financial Figures</h3>
+            <table class="table financial-table">
+                <tbody>
+                    <tr>
+                        <th>Total Revenue</th>
+                        <td>{{ stock_details.yf_info.get('totalRevenue', 'N/A') }}</td>
+                    </tr>
+                    <tr>
+                        <th>Net Income</th>
+                        <td>{{ stock_details.yf_info.get('netIncomeToCommon', 'N/A') }}</td>
+                    </tr>
+                    <tr>
+                        <th>Profit Margins</th>
+                        <td>{{ stock_details.yf_info.get('profitMargins', 'N/A') | float | default('N/A') | round(4) }}</td>
+                    </tr>
+                    <tr>
+                        <th>Operating Margins</th>
+                        <td>{{ stock_details.yf_info.get('operatingMargins', 'N/A') | float | default('N/A') | round(4) }}</td>
+                    </tr>
+                    <tr>
+                        <th>Earnings Per Share</th>
+                        <td>{{ stock_details.yf_info.get('trailingEps', 'N/A') }}</td>
+                    </tr>
+                    <tr>
+                        <th>Return on Equity</th>
+                        <td>{{ stock_details.yf_info.get('returnOnEquity', 'N/A') | float | default('N/A') | round(4) }}</td>
+                    </tr>
+                    <tr>
+                        <th>Debt to Equity</th>
+                        <td>{{ stock_details.yf_info.get('debtToEquity', 'N/A') | float | default('N/A') | round(2) }}</td>
+                    </tr>
+                    <tr>
+                        <th>Book Value Per Share</th>
+                        <td>{{ stock_details.yf_info.get('bookValue', 'N/A') }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Company Profile Section -->
+        <div id="companyProfile" class="section company-profile">
+            <h3 class="section-heading">Company Profile</h3>
+            <div class="row">
+                <div class="col-md-4">
+                    <img src="{{ stock_details.fmp_profile.get('image', 'static/default-image.png') }}" alt="Company Logo">
+                </div>
+                <div class="col-md-8">
+                    <p><span class="highlight">Name:</span> {{ stock_details.fmp_profile.get('companyName', 'N/A') }}</p>
+                    <p><span class="highlight">CEO:</span> {{ stock_details.fmp_profile.get('ceo', 'N/A') }}</p>
+                    <p><span class="highlight">Industry:</span> {{ stock_details.fmp_profile.get('industry', 'N/A') }}</p>
+                    <p><span class="highlight">Sector:</span> {{ stock_details.fmp_profile.get('sector', 'N/A') }}</p>
+                    <p><span class="highlight">Description:</span> {{ stock_details.fmp_profile.get('description', 'N/A') }}</p>
+                    <!-- Add more fields as needed -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Executive Team Section -->
+        <div id="executiveTeam" class="section executive-team">
+              <h3 class="section-heading">Executive Team</h3>
+            <ul>
+                {% for officer in stock_details.yf_info.get('companyOfficers', []) %}
+                    <li>{{ officer.get('name', 'N/A') }} - {{ officer.get('title', 'N/A') }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+        <div class="text-center my-4">
+        <br><br>
+            <a href="dashboard" class="btn btn-info">Back to Dashboard</a>
+        </div>
+        {% endif %}
+
+        <div class="text-center my-4">
+            <a href="{{ url_for('stock') }}" class="btn btn-info">Back to Form</a>
+        </div>
+
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+
+</body>
+</html>

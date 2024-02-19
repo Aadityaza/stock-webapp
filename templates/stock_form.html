@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Stock Data Form</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css" rel="stylesheet">
+
+    <style>
+        .container {
+            margin-top: 20px;
+        }
+        .sidebar {
+            min-height: 100vh;
+            background-color: #343a40;
+            color: white;
+        }
+        .sidebar .nav-link {
+            color: white;
+            transition: background-color 0.3s;
+        }
+        .sidebar .nav-link:hover {
+            background-color: #495057;
+        }
+        .sidebar .nav-link.active {
+            background-color: #007bff;
+        }
+        .sidebar .nav-link i {
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+<div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <nav class="col-md-2 d-none d-md-block bg-dark sidebar">
+                <div class="sidebar-sticky pt-3">
+                    <ul class="nav flex-column">
+                        <li class="nav-item"><a class="nav-link active" href="/dashboard"><i class="fas fa-home"></i>Home</a></li>
+                        <li class="nav-item"><a class="nav-link" href="/stock"><i class="fas fa-chart-line"></i>Stocks</a></li>
+                        <li class="nav-item"><a class="nav-link" href="/predict_stock"><i class="fas fa-robot"></i>Predict Stock Price</a></li>
+                        </ul>
+                </div>
+            </nav>
+
+            <!-- Main Content -->
+            <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-4 main-content">
+                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                <h1 class="h2">Welcome, {{ username }}</h1>
+                {% if is_logged_in %}
+                <a class="btn btn-danger" href="/logout">Logout</a>
+                {% endif %}
+            </div>
+
+            <div class="container">
+
+            <h2 class="text-center">Stock Data Form</h2>
+
+            <form id="stockForm" action="{{ url_for('stock') }}" method="post">
+                <div class="form-row align-items-end">
+                    <div class="col">
+                        <label for="stockSymbol">Stock Symbol:</label>
+                        <input type="text" class="form-control" id="stockSymbol" name="stock_symbol" placeholder="Enter Stock Symbol" required>
+                    </div>
+                    <div class="col">
+                        <label for="startDate">Start Date:</label>
+                        <input type="date" class="form-control" id="startDate" name="start_date" value="{{ start_date }}" required>
+                    </div>
+                    <div class="col">
+                        <label for="endDate">End Date:</label>
+                        <input type="date" class="form-control" id="endDate" name="end_date" value="{{ end_date }}" required>
+                    </div>
+                    <div class="col">
+                        <button type="submit" class="btn btn-primary">Submit</button>
+                    </div>
+                </div>
+
+            </form>
+            <div class="text-center my-4">
+                <br><br><br><br><br><br>
+                <br><br><br><br><br><br>
+                <br><br><br><br><br><br>
+                <a href="dashboard" class="btn btn-info">Back to Dashboard</a>
+            </div>
+        </div>
+
+                <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+                <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+                <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+            </main>
+        </div>
+    </div>
+</body>
+</html>

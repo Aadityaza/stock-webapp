@@ -1,0 +1,13 @@
+flask
+pandas
+numpy
+matplotlib
+requests
+markupsafe
+python-dotenv
+plotly
+yfinance
+tensorflow
+keras
+scikit-learn
+bcrypt

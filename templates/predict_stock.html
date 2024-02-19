@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Stock Prediction</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <style>
+        /* Add custom styles for loading animation */
+        .loader {
+            border: 5px solid #f3f3f3; /* Light grey */
+            border-top: 5px solid #3498db; /* Blue */
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 2s linear infinite;
+            display: block;
+            margin: auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        #advancedOptions {
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+            margin-top: 10px;
+        }
+
+        body {
+            background-color: #f4f4f4;
+        }
+        .container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px 0px rgba(0,0,0,0.1);
+        }
+        #loadingMessage {
+            display: none;
+            text-align: center; /* Center the text (and thus the loader) horizontally */
+        }
+        .sidebar {
+            min-height: 100vh;
+            background-color: #343a40;
+            color: white;
+        }
+        .sidebar .nav-link {
+            color: white;
+            transition: background-color 0.3s;
+        }
+        .sidebar .nav-link:hover {
+            background-color: #495057;
+        }
+        .sidebar .nav-link.active {
+            background-color: #007bff;
+        }
+        .sidebar .nav-link i {
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+<div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <nav class="col-md-2 d-none d-md-block bg-dark sidebar">
+                <div class="sidebar-sticky pt-3">
+                    <ul class="nav flex-column">
+                        <li class="nav-item"><a class="nav-link active" href="/dashboard"><i class="fas fa-home"></i>Home</a></li>
+                        <li class="nav-item"><a class="nav-link" href="/stock"><i class="fas fa-chart-line"></i>Stocks</a></li>
+                        <li class="nav-item"><a class="nav-link" href="/predict_stock"><i class="fas fa-robot"></i>Predict Stock Price</a></li>
+                        </ul>
+                </div>
+            </nav>
+
+            <!-- Main Content -->
+            <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-4 main-content">
+                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                <h1 class="h2">Welcome, {{ username }}</h1>
+                {% if is_logged_in %}
+                <a class="btn btn-danger" href="/logout">Logout</a>
+                {% endif %}
+            </div>
+
+            <div class="container mt-5">
+                <h2>Please fill the details below to predict the stock price</h2>
+                <form action="/predict_stock" method="post" id="predictForm">
+                    <div class="form-group">
+                        <label for="stock_symbol">Stock Symbol:</label>
+                        <input type="text" id="stock_symbol" name="stock_symbol" class="form-control">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="future_days">Number of Days to Predict:</label>
+                        <input type="number" id="future_days" name="future_days" class="form-control" value="15" min="1">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="past_years">Analyze Stock Performance Based on the Last 'X' Years:</label>
+                        <input type="number" id="past_years" name="past_years" class="form-control" value="10" min="1">
+                    </div>
+
+                    <button type="button" class="btn btn-info mb-3" data-toggle="collapse" data-target="#advancedOptions">Advanced Options</button>
+                    <div id="advancedOptions" class="collapse">
+                        <div class="form-group">
+                            <label for="start_date">Start Date:</label>
+                            <input type="date" id="start_date" name="start_date" class="form-control">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="end_date">End Date:</label>
+                            <input type="date" id="end_date" name="end_date" class="form-control">
+                        </div>
+                    </div>
+                        <br><br><button type="submit" class="btn btn-primary" id="predictButton">Predict</button>
+                </form>
+            </div>
+            <div class="container mt-5">
+                <div id="loadingMessage" style="display: none;" class="text-center">
+                    <div class="loader"></div>
+                    <p>Our AI system is analyzing stock price patterns. Please wait...</p>
+                </div>
+
+                {% if stock_details %}
+                    <div class="mt-4">
+                        <h2>Predicted Prices:</h2>
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Predicted Price</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for date, price in predicted_prices %}
+                                    <tr>
+                                        <td>{{ date }}</td>
+                                        <td>{{ price }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="mt-4">
+                        <h2>Future Stock Price Predictions:</h2>
+                        <div id="futurePredictionPlot"></div>
+                        {% if model_performance_plot %}
+                            <div class="mt-4">
+                                <h2>Model Performance:</h2>
+                                <div id="modelPerformancePlot"></div>
+                            </div>
+                        {% endif %}
+
+                    </div>
+                {% endif %}
+            </div>
+            {% if stock_details.yf_info %}
+            <!-- Stock Information Section -->
+            <div class="container mt-5">
+                <div id="stockInfo" class="section stock-info" style="display: block">
+
+                    <h3 class="section-heading">Stock Information</h3>
+                    <table class="table financial-table">
+                        <tbody>
+                            <tr>
+                                <th>Market Cap</th>
+                                <td>{{ stock_details.yf_info.get('marketCap', 'N/A') | int | default('N/A') | round(-6) }}</td>
+                            </tr>
+                            <tr>
+                                <th>P/E Ratio</th>
+                                <td>{{ stock_details.yf_info.get('trailingPE', 'N/A') | float | default('N/A') | round(2) }}</td>
+                            </tr>
+                            <tr>
+                                <th>Dividend Yield</th>
+                                <td>{{ stock_details.yf_info.get('dividendYield', 'N/A') | float | default('N/A') | round(4) }}</td>
+                            </tr>
+                            <tr>
+                                <th>Previous Close</th>
+                                <td>{{ stock_details.yf_info.get('previousClose', 'N/A') }}</td>
+                            </tr>
+                            <tr>
+                                <th>52 Week High</th>
+                                <td>{{ stock_details.yf_info.get('fiftyTwoWeekHigh', 'N/A') }}</td>
+                            </tr>
+                            <tr>
+                                <th>52 Week Low</th>
+                                <td>{{ stock_details.yf_info.get('fiftyTwoWeekLow', 'N/A') }}</td>
+                            </tr>
+                            <tr>
+                                <th>Average Volume</th>
+                                <td>{{ stock_details.yf_info.get('averageVolume', 'N/A') }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="container mt-5">
+                <!-- Financial Figures Section -->
+                <div id="financialFigures" class="section financial-figures" >
+                        <h3 class="section-heading">Financial Figures</h3>
+                    <table class="table financial-table">
+                        <tbody>
+                            <tr>
+                                <th>Total Revenue</th>
+                                <td>{{ stock_details.yf_info.get('totalRevenue', 'N/A') }}</td>
+                            </tr>
+                            <tr>
+                                <th>Net Income</th>
+                                <td>{{ stock_details.yf_info.get('netIncomeToCommon', 'N/A') }}</td>
+                            </tr>
+                            <tr>
+                                <th>Profit Margins</th>
+                                <td>{{ stock_details.yf_info.get('profitMargins', 'N/A') | float | default('N/A') | round(4) }}</td>
+                            </tr>
+                            <tr>
+                                <th>Operating Margins</th>
+                                <td>{{ stock_details.yf_info.get('operatingMargins', 'N/A') | float | default('N/A') | round(4) }}</td>
+                            </tr>
+                            <tr>
+                                <th>Earnings Per Share</th>
+                                <td>{{ stock_details.yf_info.get('trailingEps', 'N/A') }}</td>
+                            </tr>
+                            <tr>
+                                <th>Return on Equity</th>
+                                <td>{{ stock_details.yf_info.get('returnOnEquity', 'N/A') | float | default('N/A') | round(4) }}</td>
+                            </tr>
+                            <tr>
+                                <th>Debt to Equity</th>
+                                <td>{{ stock_details.yf_info.get('debtToEquity', 'N/A') | float | default('N/A') | round(2) }}</td>
+                            </tr>
+                            <tr>
+                                <th>Book Value Per Share</th>
+                                <td>{{ stock_details.yf_info.get('bookValue', 'N/A') }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+    {% endif %}
+    <!-- Add the stock symbol to the title of the future prediction plot -->
+    <script>
+        $(document).ready(function(){
+            $('#advancedOptions').collapse('hide');
+            $('#predictForm').on('submit', function() {
+                $('#loadingMessage').show();
+                $('#predictButton').prop('disabled', true);
+            });
+        });
+
+        // Render the Plotly plots
+        {% if future_prediction_plot %}
+            var futurePredictionData = {{ future_prediction_plot | safe }};
+            futurePredictionData.layout.title = 'Future Stock Price Prediction for {{ stock_symbol }}'; // Add this line
+            Plotly.newPlot('futurePredictionPlot', futurePredictionData.data, futurePredictionData.layout);
+        {% endif %}
+        {% if model_performance_plot %}
+            var modelPerformanceData = {{ model_performance_plot | safe }};
+            Plotly.newPlot('modelPerformancePlot', modelPerformanceData.data, modelPerformanceData.layout);
+        {% endif %}
+    </script>
+
+            </main>
+        </div>
+</div>
+        </body>
+</html>

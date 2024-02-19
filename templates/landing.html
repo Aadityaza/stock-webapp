@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Welcome to Stock Insight</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .hero-section {
+            background-color: #f8f9fa;
+            border-bottom: 1px solid #e9ecef;
+            padding: 2rem 0;
+        }
+        .main-btn {
+            margin-right: 0.5rem;
+        }
+        .img-fluid {
+            max-width: 100%;
+            height: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="hero-section">
+        <div class="container text-center">
+            <h1>Welcome to Stock Insight</h1>
+            <img src="{{ url_for('static', filename='stock-market-prediction-using-ai.jpg') }}" alt="Stock Market Prediction" class="img-fluid my-3">
+
+            <p class="lead">Empowering your investment decisions with AI-driven insights.</p>
+            <div>
+                <a href="/login" class="btn btn-primary main-btn">Login</a>
+                <a href="/signup" class="btn btn-success">Sign Up</a>
+            </div>
+        </div>
+    </div>
+
+
+
+    <div class="container mt-5">
+        <div class="row">
+            <div class="col-md-6">
+                <h2>About Stock Insight</h2>
+                <p>Stock Insight harnesses the power of artificial intelligence to predict stock market trends, helping you make smarter investment decisions. Stay ahead with real-time analytics and data-driven insights.</p>
+            </div>
+            <div class="col-md-6">
+                <h2>Features</h2>
+                <ul>
+                    <li>Real-time stock market data</li>
+                    <li>AI-driven predictive analytics</li>
+                    <li>Interactive and informative dashboards</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
